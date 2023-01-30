@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int    @id @default(autoincrement())
+  email       String @unique
+  password    String
+  firstName   String
+  lastName    String
+  state       String
+  city        String
+  address     String
+  phoneNumber String @unique
+  role        String @default("User")
+  cart        Cart?
+}
+
+model Cart {
+  id          Int           @id @default(autoincrement())
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int           @unique
+  cartProduct CartProduct[]
+  total       Decimal       @default(0.00)
+}
+
+model CartProduct {
+  cart      Cart    @relation(fields: [cartId], references: [id], onUpdate: Cascade)
+  cartId    Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  productId Int
+  quantity  Int
+  price     Decimal
+
+  @@id([cartId, productId])
+}
+
+model Category {
+  id               Int        @id @default(autoincrement())
+  categoryName     String     @unique
+  parentCategoryId Int?
+  parentCategory   Category?  @relation("Categories", fields: [parentCategoryId], references: [id], onDelete: Cascade)
+  childrenCategory Category[] @relation("Categories")
+  product          Product[]
+}
+
+model Product {
+  id          Int           @id @default(autoincrement())
+  productName String        @unique
+  description String
+  categories  Category[]
+  keywords    Keyword[]
+  thumbnail   String
+  photos      String[]
+  sku         Sku?
+  cartProduct CartProduct[]
+}
+
+model Keyword {
+  id      Int       @id @default(autoincrement())
+  keyword String    @unique
+  product Product[]
+}
+
+model Sku {
+  id        Int     @id @default(autoincrement())
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int     @unique
+  sku       String  @unique
+  price     Decimal
+  unit      String  @default("Unidad")
+  stock     Int
+  minStock  Int
+}
+
+model TasaDeCambio {
+  id   Int      @id @default(autoincrement())
+  tasa Decimal
+  date DateTime @default(now())
+}

@@ -77,7 +77,7 @@ model Sku {
   productId Int     @unique
   sku       String  @unique
   price     Decimal
-  unit      String  @default("Unidad")
+  unit      String  @default("Unidades")
   stock     Int
   minStock  Int
 }

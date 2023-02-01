@@ -206,6 +206,7 @@ const getCart = async (user: JwtPayLoad) => {
                             productName: true,
                             sku: {
                                 select: {
+                                    sku: true,
                                     price: true
                                 }
                             }

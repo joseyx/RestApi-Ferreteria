@@ -129,9 +129,26 @@ router.post('/whatsapp', async (req: Request, res: Response) => {
         res.writeHead(200, { 'Content-Type': 'text/xml' });
         res.end(twiml.toString());
         // @ts-ignore
-    } else if (req.session.step == 2.5) {
-
+    } else search: if (req.session.step == 2.5) {
+        let input: string = req.body.Body
         let index: number = 0
+        if (input == 'Regresar') {
+            // @ts-ignore
+            req.session.step = 2
+            const twiml = new MessagingResponse()
+            twiml.message('Ingresa un nuevo producto a buscar');
+            res.writeHead(200, { 'Content-Type': 'text/xml' });
+            res.end(twiml.toString());
+            break search;
+        } else if (input == 'Finalizar') {
+            req.session.destroy(() => {
+                const twiml = new MessagingResponse()
+                twiml.message('Gracias por contactarnos, esperamos haberte sido de utilidad');
+                res.writeHead(200, { 'Content-Type': 'text/xml' });
+                res.end(twiml.toString());
+            })
+            break search;
+        }
         const userInput = parseInt(req.body.Body)
         if (0 < userInput && userInput < 6) {
             index = userInput - 1;
@@ -140,7 +157,11 @@ router.post('/whatsapp', async (req: Request, res: Response) => {
         const product = req.session.products[index];
         console.log(product);
         const answer = `*${product.productName}*\n${product.description} \n\n*Precio: ${product.sku?.price}*
-        \n*${product.sku?.unit} disponibles: ${product.sku?.stock}* \n\nPuedes ingresar otro numero correspondiente a la busqueda o enviar un 0 para realizar otra busqueda`
+        \n*${product.sku?.unit} disponibles: ${product.sku?.stock}* \n
+        \nPuedes ingresar otro numero correspondiente a la busqueda.
+        \nEnviar 'Regresar' para realizar otra busqueda.
+        \nO enviar 'Finalizar' para dar por terminada la sesión.`
+
         const twiml = new MessagingResponse()
         twiml.message(answer)
         res.writeHead(200, { 'Content-Type': 'text/xml' });

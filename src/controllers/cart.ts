@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { RequestExt } from "../interfaces/request.interface";
 import { JwtPayLoad } from "../interfaces/token.interfaces";
-import { changeCartProductQuantity, createCart, newProductToCart } from "../services/cart.services";
+import { changeCartProductQuantity, createCart, getCart, newProductToCart } from "../services/cart.services";
 import { handleHttp } from "../utils/error.handle";
 
 const addProduct = async ({ body, user }: RequestExt, res: Response) => {
@@ -31,5 +31,14 @@ const changeQuantity = async ({ body, user }: RequestExt, res: Response) => {
     }
 }
 
+const getUserCart = async ({ user }: RequestExt, res: Response) => {
+    try {
+        const cart = await getCart(user as JwtPayLoad)
+        res.send(cart)
+    } catch (error) {
+        handleHttp(res, 'Error getting cart', error);
+    }
+}
 
-export { addProduct, createUserCart, changeQuantity }
+
+export { addProduct, createUserCart, changeQuantity, getUserCart }

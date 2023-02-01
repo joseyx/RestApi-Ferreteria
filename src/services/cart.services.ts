@@ -189,4 +189,34 @@ const processedOrder = async (id: number) => {
     return sumProductsPrice(id)
 }
 
-export { newProductToCart, createCart, changeCartProductQuantity, processedOrder }
+const getCart = async (user: JwtPayLoad) => {
+    const userId = user.id
+    const cart = await prisma.cart.findUnique({
+        where: {
+            userId: userId
+        },
+        select: {
+            cartProduct: {
+                select: {
+                    quantity: true,
+                    price: true,
+                    product: {
+                        select: {
+                            thumbnail: true,
+                            productName: true,
+                            sku: {
+                                select: {
+                                    price: true
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            total: true
+        }
+    })
+    return cart
+}
+
+export { newProductToCart, createCart, changeCartProductQuantity, processedOrder, getCart }

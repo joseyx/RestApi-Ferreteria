@@ -6,7 +6,7 @@ Rest api para e-commerce app
 
 ## Ejecutar de forma local
 
-Clone the project
+Clonan el proyecto
 
 ```bash
   git clone https://github.com/joseyx/RestApi-Ferreteria.git
@@ -30,7 +30,7 @@ Para ejecutar el proyecto deben hacer un archivo .env en la carpeta raiz del pro
 
 
 `DATABASE_URL` (direccion a la base de datos)
-formato: postgresql://[user[:password]@][netloc][:port][/dbname]
+formato: "postgresql://[user[:password]@][netloc][:port][/dbname]"
 
 `JWT_SECRET` (puede ser un string cualquiera)
 

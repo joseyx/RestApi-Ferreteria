@@ -61,9 +61,17 @@ router.post('/whatsapp', async (req: Request, res: Response) => {
         res.writeHead(200, { 'Content-Type': 'text/xml' });
         res.end(twiml.toString());
         // @ts-ignore
-    } else if (req.session.step == 2) {
+    } else search: if (req.session.step == 2) {
         const message = req.body.Body
-
+        if (message == 'Finalizar') {
+            req.session.destroy(() => {
+                const twiml = new MessagingResponse()
+                twiml.message('Gracias por contactarnos, esperamos haberte sido de utilidad');
+                res.writeHead(200, { 'Content-Type': 'text/xml' });
+                res.end(twiml.toString());
+            })
+            break search;
+        }
         const products = await prisma.product.findMany({
             where: {
                 OR: [
@@ -115,7 +123,8 @@ router.post('/whatsapp', async (req: Request, res: Response) => {
         } else if (products.length == 1) {
             const product = products[0]
             answer = `Se encontro el el siguiente producto: \n*${product.productName}* \n${product.description} \n\n*Precio: ${product.sku?.price}*
-            \n*${product.sku?.unit} disponibles: ${product.sku?.stock}*`
+            \n*${product.sku?.unit} disponibles: ${product.sku?.stock}*.\n\nPuedes escribir nuevamente para realizar otra busqueda.
+            O escribir 'Finalizar' para dar por terminada la session`
         } else if (products.length > 1) {
             answer = 'Se encontraron las siguientes opciones: \n'
             products.forEach((product, index) => answer = answer + `\n${index + 1}. *${product.productName}*`)
@@ -129,7 +138,7 @@ router.post('/whatsapp', async (req: Request, res: Response) => {
         res.writeHead(200, { 'Content-Type': 'text/xml' });
         res.end(twiml.toString());
         // @ts-ignore
-    } else search: if (req.session.step == 2.5) {
+    } else searchResults: if (req.session.step == 2.5) {
         let input: string = req.body.Body
         let index: number = 0
         if (input == 'Regresar') {
@@ -139,7 +148,7 @@ router.post('/whatsapp', async (req: Request, res: Response) => {
             twiml.message('Ingresa un nuevo producto a buscar');
             res.writeHead(200, { 'Content-Type': 'text/xml' });
             res.end(twiml.toString());
-            break search;
+            break searchResults;
         } else if (input == 'Finalizar') {
             req.session.destroy(() => {
                 const twiml = new MessagingResponse()

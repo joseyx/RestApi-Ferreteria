@@ -12,17 +12,18 @@ datasource db {
 }
 
 model User {
-  id          Int    @id @default(autoincrement())
-  email       String @unique
+  id          Int     @id @default(autoincrement())
+  email       String  @unique
   password    String
   firstName   String
   lastName    String
   state       String
   city        String
   address     String
-  phoneNumber String @unique
-  role        String @default("User")
+  phoneNumber String  @unique
+  role        String  @default("User")
   cart        Cart?
+  orders      Order[]
 }
 
 model Cart {
@@ -63,6 +64,7 @@ model Product {
   photos      String[]
   sku         Sku?
   cartProduct CartProduct[]
+  expires     DateTime?
 }
 
 model Keyword {
@@ -86,4 +88,28 @@ model TasaDeCambio {
   id   Int      @id @default(autoincrement())
   tasa Decimal
   date DateTime @default(now())
+}
+
+model OrderProduct {
+  id          Int     @id @default(autoincrement())
+  productName String
+  thumbnail   String
+  sku         String
+  quantity    Int
+  totalPrice  Decimal
+  unitPrice   Decimal
+  order       Order   @relation(fields: [orderId], references: [id])
+  orderId     Int
+}
+
+model Order {
+  id            Int            @id @unique
+  orderProducts OrderProduct[]
+  totalPrice    Decimal
+  tasa          Decimal        @default(0.00)
+  paymentMethod String         @default("Por determinar")
+  orderStatus   String         @default("Verificacion pendiente")
+  orderedDate   DateTime       @default(now())
+  user          User           @relation(fields: [userId], references: [id])
+  userId        Int
 }

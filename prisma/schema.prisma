@@ -55,16 +55,17 @@ model Category {
 }
 
 model Product {
-  id          Int           @id @default(autoincrement())
-  productName String        @unique
-  description String
-  categories  Category[]
-  keywords    Keyword[]
-  thumbnail   String
-  photos      String[]
-  sku         Sku?
-  cartProduct CartProduct[]
-  expires     DateTime?
+  id           Int            @id @default(autoincrement())
+  productName  String         @unique
+  description  String
+  categories   Category[]
+  keywords     Keyword[]
+  thumbnail    String
+  photos       String[]
+  sku          Sku?
+  cartProduct  CartProduct[]
+  orderProduct OrderProduct[]
+  expires      DateTime?
 }
 
 model Keyword {
@@ -91,23 +92,24 @@ model TasaDeCambio {
 }
 
 model OrderProduct {
-  id          Int     @id @default(autoincrement())
-  productName String
-  thumbnail   String
-  sku         String
-  quantity    Int
-  totalPrice  Decimal
-  unitPrice   Decimal
-  order       Order   @relation(fields: [orderId], references: [id])
-  orderId     Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  productId Int
+  quantity  Int
+  price     Decimal
+
+  @@id([orderId, productId])
 }
 
 model Order {
-  id            Int            @id @unique
+  id            String         @id @unique
   orderProducts OrderProduct[]
   totalPrice    Decimal
+  orderType     String?
   tasa          Decimal        @default(0.00)
   paymentMethod String         @default("Por determinar")
+  amount        Decimal?
   orderStatus   String         @default("Verificacion pendiente")
   orderedDate   DateTime       @default(now())
   user          User           @relation(fields: [userId], references: [id])

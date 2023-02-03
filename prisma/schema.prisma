@@ -105,7 +105,7 @@ model OrderProduct {
 model Order {
   id            String         @id @unique
   orderProducts OrderProduct[]
-  totalPrice    Decimal
+  totalPrice    Decimal        @default(0.00)
   orderType     String?
   tasa          Decimal        @default(0.00)
   paymentMethod String         @default("Por determinar")

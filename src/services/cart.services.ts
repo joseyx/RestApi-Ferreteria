@@ -61,22 +61,6 @@ const newProductToCart = async ({ productId, quantity }: ICartProduct, user: Jwt
     })
     createCartProduct
 
-    // const cartProduct = await prisma.cartProduct.create({
-    //     data: {
-    //         product: {
-    //             connect: {
-    //                 id: product.productId
-    //             }
-    //         },
-    //         cart: {
-    //             connect: {
-    //                 userId: id
-    //             }
-    //         },
-    //         price: new Prisma.Decimal(price),
-    //         quantity: product.quantity
-    //     }
-    // })
     return sumProductsPrice(user.cartId)
 }
 

@@ -16,3 +16,9 @@ export interface userInterface extends authInterface {
 export interface userRole {
     role: string;
 }
+
+export interface chatbotUser {
+    firstName: string;
+    phoneNumber: string;
+    id: number;
+}

@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { RequestExt } from "../interfaces/request.interface";
 import { JwtPayLoad } from "../interfaces/token.interfaces";
-import { changeCartProductQuantity, createCart, getCart, newProductToCart } from "../services/cart.services";
+import { changeCartProductQuantity, createCart, deleteFromCart, getCart, newProductToCart } from "../services/cart.services";
 import { handleHttp } from "../utils/error.handle";
 
 const addProduct = async ({ body, user }: RequestExt, res: Response) => {
@@ -40,5 +40,14 @@ const getUserCart = async ({ user }: RequestExt, res: Response) => {
     }
 }
 
+const deleteProductFromCart = async ({ user, body }: RequestExt, res: Response) => {
+    try {
+        const cart = await deleteFromCart(user as JwtPayLoad, body.productId, body.quantity)
+        res.send(cart)
+    } catch (error) {
+        handleHttp(res, 'Error deleting product from cart', error);
+    }
+}
 
-export { addProduct, createUserCart, changeQuantity, getUserCart }
+
+export { addProduct, createUserCart, changeQuantity, getUserCart, deleteProductFromCart }

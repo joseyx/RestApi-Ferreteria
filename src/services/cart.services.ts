@@ -39,7 +39,7 @@ const newProductToCart = async ({ productId, quantity }: ICartProduct, user: Jwt
             return 'Cantidad supera el stock disponible'
         }
         if (await checkCartProduct(user.cartId, productId)) {
-            return reAddProduct(quantity, user.cartId, rootProduct.id, rootProduct.sku.stock)
+            return reAddProduct(quantity, user, rootProduct.id, rootProduct.sku.stock)
         }
     }
 
@@ -78,41 +78,50 @@ const sumProductsPrice = async (id: number) => {
     if (x._sum.price == new Prisma.Decimal(0)) {
         x._sum.price = new Prisma.Decimal(0.00)
     }
+
     return updateCartTotal(x._sum.price as Prisma.Decimal, id)
 }
 
 const updateCartTotal = async (suma: Prisma.Decimal, id: number) => {
+
     if (suma == null) {
         suma = new Prisma.Decimal(0.00);
     }
+
+    console.log(suma)
     const updatedCartTotal = await prisma.cart.update({
         where: {
-            userId: id,
+            id: id,
         },
         data: {
             total: suma
         },
     })
+
     return updatedCartTotal
 }
 
-const reAddProduct = async (quantity: number, id: number, productId: number, productStock: number) => {
-    const cart = await prisma.cart.findUnique({
-        where: {
-            id: id
-        },
-        select: {
-            id: true
-        }
-    }) as Cart
-    const cartId = cart.id
+const reAddProduct = async (quantity: number, user: JwtPayLoad, productId: number, productStock: number) => {
 
     const cartProduct = await prisma.cartProduct.findUnique({
         where: {
-            cartId_productId: { cartId, productId }
+            cartId_productId: { cartId: user.cartId, productId }
         }
     })
 
+    const product = await prisma.product.findUnique({
+        where: {
+            id: productId
+        },
+        include: {
+            sku: true
+        }
+    })
+
+    let price: Prisma.Decimal = new Prisma.Decimal(0.00)
+    if (product != null && product.sku != null) {
+        price = product.sku.price.mul(quantity)
+    }
     if (cartProduct != null) {
         if ((cartProduct.quantity + quantity) > productStock) {
             return 'Cantidad supera el stock disponible'
@@ -121,16 +130,19 @@ const reAddProduct = async (quantity: number, id: number, productId: number, pro
 
     const updateCartProduct = await prisma.cartProduct.update({
         where: {
-            cartId_productId: { cartId, productId }
+            cartId_productId: { cartId: user.cartId, productId }
         },
         data: {
             quantity: {
                 increment: quantity
+            },
+            price: {
+                increment: price
             }
         }
     })
-    updateCartProduct
-    return sumProductsPrice(id)
+
+    return sumProductsPrice(updateCartProduct.cartId)
 }
 
 const checkCartProduct = async (id: number, productId: number) => {
@@ -210,4 +222,68 @@ const getCart = async (user: JwtPayLoad) => {
     return cart
 }
 
-export { newProductToCart, createCart, changeCartProductQuantity, processedOrder, getCart }
+const deleteFromCart = async (user: JwtPayLoad, productId: number, quantity: number) => {
+
+    const cartProduct = await prisma.cartProduct.findUnique({
+        where: {
+            cartId_productId: { cartId: user.cartId, productId }
+        }
+    })
+    if (cartProduct != null) {
+        if (cartProduct.quantity <= quantity) {
+            await prisma.cartProduct.delete({
+                where: {
+                    cartId_productId: { cartId: user.cartId, productId }
+                }
+            })
+            return sumProductsPrice(user.cartId)
+        }
+    }
+    const product = await prisma.product.findUnique({
+        where: {
+            id: productId
+        },
+        include: {
+            sku: true
+        }
+    })
+
+    let price: Prisma.Decimal = new Prisma.Decimal(0.00)
+    if (product != null && product.sku != null) {
+        price = product.sku.price.mul(quantity)
+    }
+
+
+
+    const updateCartProduct = await prisma.cartProduct.update({
+        where: {
+            cartId_productId: { cartId: user.cartId, productId }
+        },
+        data: {
+            quantity: {
+                decrement: quantity
+            },
+            price: {
+                decrement: price
+            },
+            cart: {
+                update: {
+                    total: {
+                        decrement: price
+                    }
+                }
+            }
+        }
+    })
+    updateCartProduct
+    return sumProductsPrice(user.cartId)
+}
+
+export {
+    newProductToCart,
+    createCart,
+    changeCartProductQuantity,
+    processedOrder,
+    getCart,
+    deleteFromCart
+}

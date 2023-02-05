@@ -12,7 +12,7 @@ const router = Router();
 router.get('/', checkJwt, getUserCart);
 router.post('/add_product', checkJwt, addProduct);
 router.post('/create_cart', checkJwt, createUserCart);
-router.post('/update_order', checkJwt, changeQuantity);
+router.post('/update_cart', checkJwt, changeQuantity);
 router.delete('/delete_product', checkJwt, deleteProductFromCart);
 
 

@@ -65,7 +65,7 @@ const newProductToCart = async ({ productId, quantity }: ICartProduct, user: Jwt
 }
 
 const sumProductsPrice = async (id: number) => {
-    const x = await prisma.cartProduct.aggregate({
+    let x = await prisma.cartProduct.aggregate({
         _sum: {
             price: true
         },
@@ -75,10 +75,16 @@ const sumProductsPrice = async (id: number) => {
             }
         }
     })
+    if (x._sum.price == new Prisma.Decimal(0)) {
+        x._sum.price = new Prisma.Decimal(0.00)
+    }
     return updateCartTotal(x._sum.price as Prisma.Decimal, id)
 }
 
-const updateCartTotal = async (suma: Prisma.Decimal = new Prisma.Decimal(0.00), id: number) => {
+const updateCartTotal = async (suma: Prisma.Decimal, id: number) => {
+    if (suma == null) {
+        suma = new Prisma.Decimal(0.00);
+    }
     const updatedCartTotal = await prisma.cart.update({
         where: {
             userId: id,
@@ -155,7 +161,7 @@ const changeCartProductQuantity = async ({ productId, quantity }: ICartProduct, 
         }
     })
     changeOrderAmount
-    return sumProductsPrice(user.id)
+    return sumProductsPrice(cartId)
 }
 
 const processedOrder = async (id: number) => {

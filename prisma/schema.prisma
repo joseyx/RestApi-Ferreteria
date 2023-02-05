@@ -109,7 +109,7 @@ model Order {
   orderType     String?
   tasa          Decimal        @default(0.00)
   paymentMethod String         @default("Por determinar")
-  amount        Decimal?
+  amount        String?
   orderStatus   String         @default("Verificacion pendiente")
   orderedDate   DateTime       @default(now())
   user          User           @relation(fields: [userId], references: [id])

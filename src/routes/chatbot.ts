@@ -1,11 +1,12 @@
 import { Request, Response, Router } from 'express';
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const client = require('twilio')(accountSid, authToken);
-import { PrismaClient } from '@prisma/client';
+// const accountSid = process.env.TWILIO_ACCOUNT_SID;
+// const authToken = process.env.TWILIO_AUTH_TOKEN;
+// const client = require('twilio')(accountSid, authToken);
+import { Order, OrderProduct, PrismaClient, Product, User } from '@prisma/client';
 import MessagingResponse from 'twilio/lib/twiml/MessagingResponse';
 import { index } from 'cheerio/lib/api/traversing';
+import { processOrder } from '../services/order.services';
 
 const prisma = new PrismaClient();
 const router = Router();
@@ -13,6 +14,20 @@ const router = Router();
 /**
  * /whatsapp
  */
+
+declare module 'express-session' {
+    export interface SessionData {
+        order: (Order & {
+            user: User;
+            orderProducts: (OrderProduct & {
+                product: Product;
+            })[];
+        }),
+        payment: string,
+        entrega: string
+        amount: string
+    }
+}
 
 router.post('/whatsapp', async (req: Request, res: Response) => {
     // @ts-ignore
@@ -213,6 +228,8 @@ router.post('/whatsapp', async (req: Request, res: Response) => {
 
         if (req.body.Body == 0) {
             req.session.destroy(() => {
+                // @ts-ignore
+                req.session.step = 0
                 message = 'Gracias por escribirnos, esperamos haberte ayudado.'
                 twiml.message(message)
                 res.writeHead(200, { 'Content-Type': 'text/xml' });
@@ -244,22 +261,26 @@ router.post('/whatsapp', async (req: Request, res: Response) => {
             res.end(twiml.toString());
             break orderType
         }
-        // @ts-ignore
-        req.session.order = order
+        req.session.order = order as (Order & {
+            user: User;
+            orderProducts: (OrderProduct & {
+                product: Product;
+            })[];
+        })
         if (order?.user.phoneNumber == phoneNumber) {
             message = `Por favor verifique su orden\n\n
-            Numero de orden: *${order.id}*\n
-            ---------------------------------`
+Numero de orden: *${order.id}*\n
+---------------------------------\n`
             order.orderProducts.forEach((product, index) =>
-                message = message + `${index}. ${product.product.productName}\n
-            Cantidad: *${product.quantity}*\nPrecio: *${product.price}*\n`
+                message = message + `${index + 1}. ${product.product.productName}\n
+Cantidad: *${product.quantity}*   Precio: *${product.price}*\n`
             )
             message = message + `---------------------------------\n\n
-            Total del pedido: $${order.totalPrice}\n\n
-            Si el pedido es correcto indique la opcione correspondiente al metodo de entrega:\n
-            1. Retiro en la tienda \n
-            2. Delivery
-            3. Cancelar el pedido`
+Total del pedido: $${order.totalPrice}\n\n
+Si el pedido es correcto indique la opcione correspondiente al metodo de entrega:\n
+    1. Retiro en la tienda
+    2. Delivery
+    3. Cancelar el pedido`
             // @ts-ignore
             req.session.step = 4
         } else {
@@ -274,6 +295,7 @@ router.post('/whatsapp', async (req: Request, res: Response) => {
     } else orderPayment: if (req.session.step == 4) {
 
         const answer = req.body.Body
+        const twiml = new MessagingResponse()
 
         if (req.body.Body == 'Finalizar') {
             req.session.destroy(() => {
@@ -285,7 +307,7 @@ router.post('/whatsapp', async (req: Request, res: Response) => {
             break orderPayment
         }
 
-        const twiml = new MessagingResponse()
+
 
         if (answer == '1') {
             // @ts-ignore
@@ -294,7 +316,7 @@ router.post('/whatsapp', async (req: Request, res: Response) => {
             // @ts-ignore
             req.session.entrega = 'Delivery'
         } else {
-            const message = `Opcion invalida, por favor ingresa unicamente el numero de la opcion deseada \n
+            const message = `Opcion invalida, por favor ingresa unicamente el numero de la opcion deseada
             O envia 'Finalizar' para finalizar la sesion`
             twiml.message(message)
             res.writeHead(200, { 'Content-Type': 'text/xml' });
@@ -305,9 +327,9 @@ router.post('/whatsapp', async (req: Request, res: Response) => {
         // @ts-ignore
         req.session.step = 5
         const message = `Ahora ingrese por favor la opcion correspondiente al metodo de pago: \n\n
-        1. Dolares efectivo (ingrese la opcion seguida de la denominacion del billete) \n
-        2. Dolares transferencia\n
-        3. Pago movil`
+1. Dolares efectivo (ingrese la opcion seguida de la denominacion del billete) \n
+2. Dolares transferencia\n
+3. Pago movil`
         twiml.message(message)
         res.writeHead(200, { 'Content-Type': 'text/xml' });
         res.end(twiml.toString());
@@ -316,6 +338,7 @@ router.post('/whatsapp', async (req: Request, res: Response) => {
     } else orderFinal: if (req.session.step == 5) {
 
         const answer: string = req.body.Body;
+        console.log(answer);
 
         if (answer.charAt(0) == '1') {
             // @ts-ignore
@@ -324,6 +347,7 @@ router.post('/whatsapp', async (req: Request, res: Response) => {
             const amount = answer.split(' ')[1]
             // @ts-ignore
             req.session.amount = amount
+            console.log(amount)
         } else if (answer == '2') {
             // @ts-ignore
             req.session.payment = 'Dolares transferencia'
@@ -336,6 +360,17 @@ router.post('/whatsapp', async (req: Request, res: Response) => {
             res.writeHead(200, { 'Content-Type': 'text/xml' });
             res.end(twiml.toString());
             break orderFinal;
+        }
+        const twiml = new MessagingResponse()
+        twiml.message('Su orden fue procesada, en breve se le notificara cuando sea aprobada');
+        res.writeHead(200, { 'Content-Type': 'text/xml' });
+        res.end(twiml.toString())
+        // @ts-ignore
+        if (req.session.amount) {
+            // @ts-ignore
+            await processOrder(req.session.order, req.session.entrega, req.session.payment, req.session.amount)
+        } else {
+
         }
     }
 })

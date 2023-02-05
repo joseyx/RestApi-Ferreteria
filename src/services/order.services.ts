@@ -1,13 +1,12 @@
-import { Cart, CartProduct, PrismaClient } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime';
-import { chatbotUser } from '../interfaces/user.interface';
+import { Cart, CartProduct, Order, OrderProduct, PrismaClient, Product, User } from '@prisma/client';
+import { JwtPayLoad } from '../interfaces/token.interfaces';
+import { processedOrder } from './cart.services';
 import { getLastTasa } from './tasa.services';
 
 const prisma = new PrismaClient();
 
-const createOrder = async (User: chatbotUser, entrega: string, payment: string, amount?: string) => {
+const createOrder = async (user: JwtPayLoad) => {
 
-    const user = User
     const cart = await prisma.cart.findUnique({
         where: {
             userId: user.id
@@ -33,10 +32,10 @@ const createOrder = async (User: chatbotUser, entrega: string, payment: string, 
         }
     })
 
-    return createProductOrder(user, cart as (Cart & { cartProduct: CartProduct[] }), order as { id: string })
+    return createProductOrder(cart as (Cart & { cartProduct: CartProduct[] }), order as { id: string })
 }
 
-const createProductOrder = async (User: chatbotUser, cart: (Cart & { cartProduct: CartProduct[] }),
+const createProductOrder = async (cart: (Cart & { cartProduct: CartProduct[] }),
     order: { id: string }) => {
 
     cart.cartProduct.forEach(async (cartProduct) => {
@@ -58,7 +57,7 @@ const createProductOrder = async (User: chatbotUser, cart: (Cart & { cartProduct
         })
     })
 
-    return updateTotal
+    return updateTotal(order, cart)
 }
 
 const updateTotal = async (order: { id: string }, cart: (Cart & { cartProduct: CartProduct[] })) => {
@@ -70,8 +69,63 @@ const updateTotal = async (order: { id: string }, cart: (Cart & { cartProduct: C
             totalPrice: cart.total
         }
     })
+    await processedOrder(cart?.id as number)
     return updatedOrder
 }
+
+const processOrder = async (order: (Order & {
+    user: User; orderProducts: (OrderProduct & { product: Product })[];
+}), entrega: string, payment: string, amount?: string) => {
+
+    if (amount && payment == 'Dolares efectivo') {
+        (async () => {
+            await prisma.order.update({
+                where: {
+                    id: order.id
+                },
+                data: {
+                    orderType: entrega,
+                    paymentMethod: payment,
+                    amount: amount,
+                    orderStatus: 'Procesado'
+                }
+            })
+        })()
+    } else if (payment == 'Pago movil') {
+        const tasaDeCambio = await getLastTasa()
+
+        const tasa = tasaDeCambio?.tasa;
+
+        (async () => {
+            await prisma.order.update({
+                where: {
+                    id: order.id
+                },
+                data: {
+                    orderType: entrega,
+                    paymentMethod: payment,
+                    tasa: tasa,
+                    orderStatus: 'Procesado'
+                }
+            })
+        })()
+    } else {
+        (async () => {
+            await prisma.order.update({
+                where: {
+                    id: order.id
+                },
+                data: {
+                    orderType: entrega,
+                    paymentMethod: payment,
+                    orderStatus: 'Procesado'
+                }
+            })
+        })()
+    }
+}
+
+export { createOrder, processOrder }
 
 //     if (payment == 'Pago movil') {
 //         const tasaDeCambio = await getLastTasa()

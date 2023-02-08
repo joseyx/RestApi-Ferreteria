@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/app.ts",
-    "updateDB": "npx prisma generate"
+    "updateDB": "npx prisma generate",
+    "build": "tsc --build && node Dist/app.js"
   },
   "keywords": [],
   "author": "",

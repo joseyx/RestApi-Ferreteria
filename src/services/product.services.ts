@@ -103,7 +103,7 @@ const createProduct = async (body: productInterface, files: files | any) => {
 
 
 
-    const addNewProductOnly = prisma.product.create({
+    const addNewProductOnly = await prisma.product.create({
         data: {
             productName: body.productName,
             description: body.description,
@@ -134,6 +134,7 @@ const createProduct = async (body: productInterface, files: files | any) => {
             }
         },
         select: {
+            id: true,
             productName: true,
             description: true,
             categories: true,
@@ -142,6 +143,23 @@ const createProduct = async (body: productInterface, files: files | any) => {
             sku: true,
         }
     })
+
+    if (body.sku.expDate) {
+        const productWithExpiration = await prisma.product.update({
+            where: {
+                id: addNewProductOnly.id
+            },
+            data: {
+                sku: {
+                    update: {
+                        expDate: body.sku.expDate
+                    }
+                }
+            }
+        })
+
+        return productWithExpiration
+    }
 
     return addNewProductOnly
 }
@@ -395,6 +413,19 @@ const getProducsByCategory = async (category: string) => {
     return products
 }
 
+const closeExpProducts = async () => {
+    let date = new Date();
+    date.setDate(date.getDate() + 30)
+
+    const products = await prisma.sku.findMany({
+        where: {
+            expDate: {
+                lte: date
+            }
+        }
+    })
+    return products
+}
 export {
     getProducts,
     getProduct,
@@ -406,5 +437,6 @@ export {
     wipeProduct,
     searchProductBar,
     searchProductByTerm,
-    getProducsByCategory
+    getProducsByCategory,
+    closeExpProducts
 }

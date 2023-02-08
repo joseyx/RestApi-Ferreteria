@@ -65,7 +65,6 @@ model Product {
   sku          Sku?
   cartProduct  CartProduct[]
   orderProduct OrderProduct[]
-  expires      DateTime?
 }
 
 model Keyword {
@@ -75,14 +74,15 @@ model Keyword {
 }
 
 model Sku {
-  id        Int     @id @default(autoincrement())
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId Int     @unique
-  sku       String  @unique
+  id        Int       @id @default(autoincrement())
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int       @unique
+  sku       String    @unique
   price     Decimal
-  unit      String  @default("Unidades")
+  unit      String    @default("Unidades")
   stock     Int
   minStock  Int
+  expDate   DateTime?
 }
 
 model TasaDeCambio {

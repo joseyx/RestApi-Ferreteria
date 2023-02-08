@@ -141,6 +141,7 @@ Devuelve un json con todos los productos
 | `stock` | `number`(entero) | **Requerido**. Cantidad de unidades disponibles |
 | `minStock` | `number`(entero) | **Requerido**. Cantidad minima de unidades disponibles deseada |
 | `unit` | `string` | **Opcional**. Unidad correspondiente al producto, por defecto es 'Unidades' |
+| `expDate` | `Date` | **Opcional**. fecha de vencimiento del producto |
 
 #### Obtener product
 

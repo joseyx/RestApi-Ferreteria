@@ -13,6 +13,7 @@ export interface skuInterface {
     price: number
     stock: number
     minStock: number
+    expDate?: Date
 }
 
 export interface cartProductInterface {

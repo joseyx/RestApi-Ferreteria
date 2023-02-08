@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon src/app.ts",
     "updateDB": "npx prisma generate",
-    "start": "npm i && tsc --build && npm run updateDB && run node Dist/app.js"
+    "start": "npm i && tsc --build && npm run updateDB && node Dist/app.js"
   },
   "keywords": [],
   "author": "",

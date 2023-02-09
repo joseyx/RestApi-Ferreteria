@@ -151,6 +151,15 @@ Devuelve un json con todos los productos
 
 Devuelve un objeto JSON con toda le informacion del producto correspondiente al id ingresado
 
+
+#### Obtener productos proximos a vencer
+
+```http
+  GET /products/exp
+```
+
+Devuelve un array de objetos JSON con los productos proximos a vencer
+
 #### Eliminar producto
 
 ```http

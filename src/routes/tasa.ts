@@ -7,7 +7,7 @@ import { addTasaDeCambio } from "../services/tasa.services";
 
 const router = Router();
 
-schedule.scheduleJob('* */6 * * *', async () => {
+schedule.scheduleJob('0 */6 * * *', async () => {
     try {
         addTasaDeCambio();
     } catch (error) {

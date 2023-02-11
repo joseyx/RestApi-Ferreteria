@@ -1,4 +1,4 @@
-import { Cart, Prisma, PrismaClient, Product } from '@prisma/client';
+import { Cart, Prisma, PrismaClient } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime';
 import { ICartProduct } from '../interfaces/cart.interface';
 import { JwtPayLoad } from '../interfaces/token.interfaces';

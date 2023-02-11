@@ -2,11 +2,14 @@
   "name": "ferreteria",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "Dist/index.js",
+  "engines": {
+    "node": "19.5.0"
+  },
   "scripts": {
     "dev": "nodemon src/app.ts",
     "updateDB": "npx prisma generate",
-    "start": "tsc --build && node Dist/app.js"
+    "start": "tsc --build && node Dist/index.js"
   },
   "keywords": [],
   "author": "",

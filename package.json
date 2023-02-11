@@ -9,8 +9,7 @@
   "scripts": {
     "dev": "nodemon src/app.ts",
     "updateDB": "npx prisma generate",
-    "build": "tsc --build",
-    "start": "npm run build && npm run updateDB && node Dist/app.js"
+    "start": "tsc --build && npm run updateDB && node Dist/app.js"
   },
   "keywords": [],
   "author": "Jose Rojas",

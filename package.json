@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "nodemon src/app.ts",
     "updateDB": "npx prisma generate",
-    "start": "tsc --build && node Dist/index.js"
+    "build": "tsc --build",
+    "start": "node Dist/index.js"
   },
   "keywords": [],
   "author": "",

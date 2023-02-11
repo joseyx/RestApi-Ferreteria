@@ -45,7 +45,7 @@ const loginUser = async ({ email, password }: authInterface) => {
         }
     })
 
-    if (!checkIs) return 'User not found';
+    if (checkIs == null) return 'User not found';
 
     const passwordHash = checkIs.password
     const isCorrect = await verified(password, passwordHash)

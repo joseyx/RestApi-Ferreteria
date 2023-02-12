@@ -426,6 +426,40 @@ const closeExpProducts = async () => {
     })
     return products
 }
+
+const mainPageProducts = async () => {
+    const randomPick = (values: string[]) => {
+        const index = Math.floor(Math.random() * values.length);
+        return values[index];
+    }
+
+    const itemCount = await prisma.product.count()
+
+    const randomNumber = (min: number, max: number) => {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    const orderBy = randomPick(['id', 'productName']);
+    const orderDir = randomPick([`asc`, `desc`]);
+
+    const result = await prisma.product.findMany({
+        orderBy: { [orderBy]: orderDir },
+        take: 1,
+        skip: randomNumber(0, itemCount - 1),
+        select: {
+            id: true,
+            productName: true,
+            description: true,
+            sku: {
+                select: {
+                    price: true
+                }
+            }
+        }
+    })
+
+    return result
+}
 export {
     getProducts,
     getProduct,
@@ -438,5 +472,6 @@ export {
     searchProductBar,
     searchProductByTerm,
     getProducsByCategory,
-    closeExpProducts
+    closeExpProducts,
+    mainPageProducts
 }

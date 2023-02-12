@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createNewProduct, getAllProducts, deleteProduct, updateRootProduct, updateProductSku, deleteProductSku, getProductSku, getSingleProduct, getProducsOnCategory, searchProductWithTerm, getCloseExpProducts } from "../controllers/product";
+import { createNewProduct, getAllProducts, deleteProduct, updateRootProduct, updateProductSku, deleteProductSku, getProductSku, getSingleProduct, getProducsOnCategory, searchProductWithTerm, getCloseExpProducts, getMainPageProducts } from "../controllers/product";
 import multer from "../libs/multer";
 import { checkRole } from "../middleware/role";
 import { checkJwt } from "../middleware/session";
@@ -39,5 +39,7 @@ router.route('/sku/:id')
 router.get('/:category', getProducsOnCategory)
 
 router.get('/search/:term', searchProductWithTerm)
+
+router.get('/main_page', getMainPageProducts)
 
 export { router }

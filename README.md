@@ -76,7 +76,7 @@ Una vez hecho eso ya pueden modificar el codigo.
 #### Sign Up / Registro
 
 ```http
-  POST /auth/items
+  POST /auth/register
 ```
 
 | Parametro | Tipo     | Descripcion                |

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { handleHttp } from "../utils/error.handle";
-import { getProducts, createProduct, getProduct, wipeProduct, updateProduct, updateSku, deleteSku, getSku, getProducsByCategory, searchProductByTerm, closeExpProducts } from "../services/product.services";
+import { getProducts, createProduct, getProduct, wipeProduct, updateProduct, updateSku, deleteSku, getSku, getProducsByCategory, searchProductByTerm, closeExpProducts, mainPageProducts } from "../services/product.services";
 
 const getAllProducts = async (req: Request, res: Response) => {
     try {
@@ -105,6 +105,15 @@ const getCloseExpProducts = async (req: Request, res: Response) => {
     }
 }
 
+const getMainPageProducts = async (req: Request, res: Response) => {
+    try {
+        const products = await mainPageProducts()
+        res.sendStatus(200).send(products)
+    } catch (error) {
+        handleHttp(res, 'Error getting main page products', error)
+    }
+}
+
 export {
     getAllProducts,
     createNewProduct,
@@ -116,5 +125,6 @@ export {
     getProductSku,
     getProducsOnCategory,
     searchProductWithTerm,
-    getCloseExpProducts
+    getCloseExpProducts,
+    getMainPageProducts
 }

@@ -14,22 +14,9 @@ const getCategories = async () => {
         select: {
             id: true,
             categoryName: true,
-            parentCategoryId: true,
             childrenCategory: {
                 select: {
-                    id: true,
-                    parentCategoryId: true,
                     categoryName: true,
-                    product: {
-                        select: {
-                            productName: true,
-                        }
-                    }
-                }
-            },
-            product: {
-                select: {
-                    productName: true
                 }
             }
         }

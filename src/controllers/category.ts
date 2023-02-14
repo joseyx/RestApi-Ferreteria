@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createNewCategory, getCategories, createChildCategory, deleteCategory } from "../services/category.services";
+import { createNewCategory, getCategories, createChildCategory, deleteCategory, getParentCategories, getChildCategories } from "../services/category.services";
 import { handleHttp } from "../utils/error.handle";
 
 
@@ -39,6 +39,31 @@ const deleteCategoryByName = async ({ body }: Request, res: Response) => {
     }
 }
 
+const showParentCategories = async (req: Request, res: Response) => {
+    try {
+        const categories = await getParentCategories();
+        res.status(200).send(categories);
+    } catch (error) {
+        handleHttp(res, 'Error getting parent categories', error);
+    }
+}
+
+const showChildCategories = async (req: Request, res: Response) => {
+    try {
+        const childCategories = await getChildCategories(req.params.category);
+        res.status(200).send(childCategories)
+    } catch (error) {
+        handleHttp(res, 'Error getting child categories', error);
+    }
+}
+
 // export { createCategory, createChild }
 
-export { showCategories, createCategory, createChild, deleteCategoryByName }
+export {
+    showCategories,
+    createCategory,
+    createChild,
+    deleteCategoryByName,
+    showParentCategories,
+    showChildCategories
+}

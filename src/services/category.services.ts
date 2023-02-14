@@ -36,6 +36,32 @@ const getCategories = async () => {
     })
 }
 
+const getParentCategories = async () => {
+    return await prisma.category.findMany({
+        where: {
+            parentCategoryId: {
+                equals: null
+            }
+        },
+        select: {
+            categoryName: true
+        }
+    })
+}
+
+const getChildCategories = async (parentCategory: string) => {
+    return await prisma.category.findMany({
+        where: {
+            parentCategory: {
+                categoryName: parentCategory
+            }
+        },
+        select: {
+            categoryName: true,
+        }
+    })
+}
+
 const createNewCategory = async ({ categoryName }: categoryInterface) => {
     const catergoryExists = await prisma.category.findUnique({
         where: { categoryName: categoryName }
@@ -78,4 +104,11 @@ const deleteCategory = async ({ categoryName }: categoryInterface) => {
     return deleteCategory
 }
 
-export { getCategories, createNewCategory, createChildCategory, deleteCategory }
+export {
+    getCategories,
+    createNewCategory,
+    createChildCategory,
+    deleteCategory,
+    getParentCategories,
+    getChildCategories
+}

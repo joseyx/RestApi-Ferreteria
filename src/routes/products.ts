@@ -36,10 +36,10 @@ router.route('/sku/:id')
     .get(getProductSku)
     .delete(checkJwt, checkRole(['Admin', 'Manager']), deleteProductSku)
 
-router.get('/:category', getProducsOnCategory)
+router.get('/category/:category', getProducsOnCategory)
 
 router.get('/search/:term', searchProductWithTerm)
 
-router.get('/main_page', getMainPageProducts)
+router.get('/featured', getMainPageProducts)
 
 export { router }

@@ -4,10 +4,19 @@ import { getProducts, createProduct, getProduct, wipeProduct, updateProduct, upd
 
 const getAllProducts = async (req: Request, res: Response) => {
     try {
-        const responseProducts = await getProducts();
-        res.send(responseProducts)
+        const products = await getProducts();
+        res.send(products)
     } catch (error) {
         handleHttp(res, 'Error getting products', error)
+    }
+}
+
+const getMainPageProducts = async (req: Request, res: Response) => {
+    try {
+        const products = await mainPageProducts()
+        res.send(products)
+    } catch (error) {
+        handleHttp(res, 'Error getting main page products', error)
     }
 }
 
@@ -105,14 +114,7 @@ const getCloseExpProducts = async (req: Request, res: Response) => {
     }
 }
 
-const getMainPageProducts = async (req: Request, res: Response) => {
-    try {
-        const products = await mainPageProducts()
-        res.sendStatus(200).send(products)
-    } catch (error) {
-        handleHttp(res, 'Error getting main page products', error)
-    }
-}
+
 
 export {
     getAllProducts,

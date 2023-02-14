@@ -2,6 +2,7 @@ import { PrismaClient, Product } from "@prisma/client";
 import { files, productInterface, skuInterface } from "../interfaces/product.interface";
 import fs from 'fs-extra'
 import path from "path";
+import { get } from "https";
 
 
 const prisma = new PrismaClient();
@@ -9,8 +10,10 @@ const prisma = new PrismaClient();
 const getProducts = async () => {
     return await prisma.product.findMany({
         select: {
+            id: true,
             productName: true,
             description: true,
+            thumbnail: true,
             sku: {
                 select: {
                     sku: true,
@@ -428,37 +431,11 @@ const closeExpProducts = async () => {
 }
 
 const mainPageProducts = async () => {
-    const randomPick = (values: string[]) => {
-        const index = Math.floor(Math.random() * values.length);
-        return values[index];
-    }
+    console.log('here')
+    const products = await getProducts()
+    const randomProducts = products.sort(() => 0.5 - Math.random())
 
-    const itemCount = await prisma.product.count()
-
-    const randomNumber = (min: number, max: number) => {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    const orderBy = randomPick(['id', 'productName']);
-    const orderDir = randomPick([`asc`, `desc`]);
-
-    const result = await prisma.product.findMany({
-        orderBy: { [orderBy]: orderDir },
-        take: 1,
-        skip: randomNumber(0, itemCount - 1),
-        select: {
-            id: true,
-            productName: true,
-            description: true,
-            sku: {
-                select: {
-                    price: true
-                }
-            }
-        }
-    })
-
-    return result
+    return randomProducts.slice(0, 12)
 }
 export {
     getProducts,

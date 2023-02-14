@@ -13,7 +13,7 @@ router.get('/', showCategories);
 router.post('/create', checkJwt, checkRole(['Admin']), createCategory);
 router.post('/create_child', checkJwt, checkRole(['Admin']), createChild);
 router.delete('/delete', checkJwt, checkRole(['Admin']), deleteCategoryByName)
-router.get('/:category', showChildCategories)
+router.get('/childs/:category', showChildCategories)
 router.get('/parent', showParentCategories)
 
 export { router }

@@ -198,25 +198,19 @@ const getCart = async (user: JwtPayLoad) => {
             userId: userId
         },
         select: {
+            id: true,
+            total: true,
             cartProduct: {
                 select: {
-                    quantity: true,
-                    price: true,
                     product: {
-                        select: {
-                            thumbnail: true,
-                            productName: true,
-                            sku: {
-                                select: {
-                                    sku: true,
-                                    price: true
-                                }
-                            }
+                        include: {
+                            sku: true
                         }
-                    }
+                    },
+                    price: true,
+                    quantity: true
                 }
-            },
-            total: true
+            }
         }
     })
     return cart

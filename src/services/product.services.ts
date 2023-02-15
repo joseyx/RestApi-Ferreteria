@@ -46,13 +46,6 @@ const getProduct = async (id: string) => {
                 select: {
                     id: true,
                     categoryName: true,
-                    childrenCategory: {
-                        select: {
-                            id: true,
-                            parentCategoryId: true,
-                            categoryName: true,
-                        }
-                    }
                 }
             },
             sku: {

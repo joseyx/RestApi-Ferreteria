@@ -20,7 +20,7 @@ router.post('/create_product', multer.fields([
     },
     {
         name: 'photos',
-        maxCount: 10
+        maxCount: 9
     }
 ]), createNewProduct);
 

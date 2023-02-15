@@ -34,6 +34,8 @@ const getProduct = async (id: string) => {
         select: {
             productName: true,
             description: true,
+            photos: true,
+            thumbnail: true,
             categories: {
                 where: {
                     parentCategoryId: {

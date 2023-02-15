@@ -358,6 +358,7 @@ const searchProductByTerm = async (searchTerm: string) => {
             ]
         },
         select: {
+            id: true,
             productName: true,
             thumbnail: true,
             sku: {

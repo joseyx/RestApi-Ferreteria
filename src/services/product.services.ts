@@ -61,6 +61,7 @@ const getProduct = async (id: string) => {
                     minStock: true,
                     stock: true,
                     price: true,
+                    unit: true
                 }
             }
         }

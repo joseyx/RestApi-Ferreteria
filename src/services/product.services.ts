@@ -2,7 +2,7 @@ import { PrismaClient, Product } from "@prisma/client";
 import { files, productInterface, skuInterface } from "../interfaces/product.interface";
 import fs from 'fs-extra'
 import path from "path";
-import { get } from "https";
+
 
 
 const prisma = new PrismaClient();

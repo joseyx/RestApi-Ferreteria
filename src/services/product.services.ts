@@ -87,7 +87,7 @@ const createProduct = async (body: productInterface, files: files | any) => {
         }
     })
 
-    if (checkIsCategory.length < categories.length || !checkIsCategory) return "Category doesn't exist"
+    if (checkIsCategory.length == 0) return "Category doesn't exist"
 
     const productPrice = Number(body.sku.price)
     const productStock = Number(body.sku.stock)
